@@ -1,0 +1,1 @@
+1. Convert Makefile + XSLTPROC generation of source code to i18n_generate:generate/1 using xmerl.

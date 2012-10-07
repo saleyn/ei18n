@@ -1,0 +1,12 @@
+<translations default-lang="en" version="1.0">
+<lang iso="en">
+    <text id="1" type="static">Hello!</text>
+    <text id="2" type="static">Welcome to Competeamer!</text>
+    <text id="30984" value="Value example"/>
+</lang>
+<lang iso="ru">
+    <text id="1">Привет!</text>
+    <text id="2">Добро пожаловать в Компетимер!</text>
+    <text id="30984" value="Пример значения"/>
+</lang>
+</translations>

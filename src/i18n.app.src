@@ -1,0 +1,8 @@
+{application, i18n,
+    [{description,"Erlang I18n internationalization"},
+     {vsn, git},
+     {id,"i18n"},
+     {modules,[]},
+     {registered,[exec]},
+     {applications,[kernel,stdlib]},
+     {env,[]}]}.

@@ -1,6 +1,11 @@
 .eunit
+ebin
 deps
 priv
 *.o
 *.beam
 *.plt
+src/i18n_trans_en.erl
+src/i18n_trans.erl
+src/i18n_trans_ru.erl
+include/i18n_constants.hrl
