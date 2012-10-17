@@ -5,19 +5,26 @@ LANGUAGES		= $(shell $(XSLTPROC) --stringparam lang 1    spec/i18n_languages.xsl
 MODULES			= $(shell $(XSLTPROC) --stringparam modules 1 spec/i18n_languages.xsl $(MESSAGES_FILE))
 NOW				= $(shell date +'%Y-%m-%d %T')
 
-ERL_FILES		= $(MODULES:%=src/%.erl)
+GENERATED_FILES	= $(MODULES:%=src/%.erl)
+ERL_MODULES		= i18n_generate i18n_iso639 i18n_trans_server
+ERL_SRC_FILES   = $(foreach p,$(ERL_MODULES),src/$(p).erl)
 
-TARGETS			= include/i18n_constants.hrl src/i18n.erl $(ERL_FILES)
+GEN_TARGETS		= include/i18n_constants.hrl src/i18n.erl $(GENERATED_FILES)
+TARGETS			= $(ERL_SRC_FILES:src/%.erl=ebin/%.beam)
 
-all: $(TARGETS)
+all:
+	@rebar -v compile
+
+gen: $(GEN_TARGETS)
 	@rebar -v compile
 
 info:
 	@echo "LANGUAGES = $(LANGUAGES)"
 	@echo "MODULES   = $(MODULES)"
+	@echo "ERL_SRC   = $(ERL_SRC_FILES)"
 
 clean:
-	rm -f $(TARGETS)
+	rm -f $(GEN_TARGETS)
 	@rebar clean
 
 include:
