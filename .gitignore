@@ -5,7 +5,6 @@ priv
 *.o
 *.beam
 *.plt
-src/i18n_trans_en.erl
-src/i18n_trans.erl
-src/i18n_trans_ru.erl
+src/i18n.erl
+src/i18n_trans_??.erl
 include/i18n_constants.hrl

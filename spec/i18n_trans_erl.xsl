@@ -30,7 +30,7 @@
 %%%            >>>>>>>  !!! DO NOT MODIFY BY HAND  !!! &lt;&lt;&lt;&lt;&lt;&lt;&lt;
 %%%
 %%%----------------------------------------------------------------------------
--module(i18n_trans).
+-module(i18n).
 -export([default_language/0, supports/1, info/1, get/1, get/2, reload/0]).
 
 </xsl:text>

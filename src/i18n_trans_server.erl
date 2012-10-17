@@ -23,7 +23,7 @@
          code_change/3]).
 
 %% Internal default API of data reloading implementation
--export([impl_init/1, impl_reload/2, impl_stop/1]).
+-export([impl_init/2, impl_reload/2, impl_stop/1]).
 
 -record(state, {
       tref      :: reference()  % Reference of reload checking timer
@@ -72,7 +72,7 @@ start(Options) when is_list(Options) ->
 %%-----------------------------------------------------------------------------
 -spec get(integer() | atom()) -> binary() | {error, any()}.
 get(ID) when is_integer(ID); is_atom(ID) ->
-    get(i18n_trans:default_language(), ID).
+    get(i18n:default_language(), ID).
 
 %%-----------------------------------------------------------------------------
 %% @spec (Lang, ID) -> binary()
@@ -120,7 +120,7 @@ init(Options) ->
         ets:new(?MODULE,
             [protected, named_table, {read_concurrency,true}]),
 
-        IState = RelMod:impl_init(self()),
+        IState = RelMod:impl_init(self(), Options),
 
         Ref = erlang:send_after(Timeout, self(), check_and_reload),
         {ok, #state{tref = Ref, timeout = Timeout,
@@ -146,7 +146,7 @@ handle_call({get, Key}, _From, State) ->
     V when is_binary(V) ->
         {reply, V, State};
     false ->
-        DefLang = i18n_trans:default_language(),
+        DefLang = i18n:default_language(),
         case Key of
         {Lang, _} when Lang =:= DefLang ->
             {reply, not_found, State};
@@ -232,7 +232,7 @@ lookup(Key) ->
     end.
 
 
-impl_init(_ServerPid) ->
+impl_init(_ServerPid, _Options) ->
     undefined.
 
 impl_reload(_ServerPid, State) ->

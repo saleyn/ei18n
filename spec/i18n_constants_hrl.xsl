@@ -39,6 +39,11 @@
 <xsl:for-each select="lang[@iso = /translations/@default-lang]/text">
     <xsl:variable name="title">
         <xsl:choose>
+            <xsl:when test="@name">
+                <xsl:call-template name="format-const-name">
+                    <xsl:with-param name="text" select="@name"/>
+                </xsl:call-template>
+            </xsl:when>
             <xsl:when test="@value">
                 <xsl:call-template name="format-const-name">
                     <xsl:with-param name="text" select="@value"/>
@@ -58,7 +63,7 @@
 
     <xsl:call-template name="pad">
         <xsl:with-param name="padCount">
-            <xsl:value-of select="$max-title-len + 1 - string-length($title) + 7 - string-length(@id)"/>
+            <xsl:value-of select="$max-title-len - string-length($title) + 7 - string-length(@id)"/>
         </xsl:with-param>
     </xsl:call-template>
 

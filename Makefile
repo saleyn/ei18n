@@ -7,7 +7,7 @@ NOW				= $(shell date +'%Y-%m-%d %T')
 
 ERL_FILES		= $(MODULES:%=src/%.erl)
 
-TARGETS			= include/i18n_constants.hrl src/i18n_trans.erl $(ERL_FILES)
+TARGETS			= include/i18n_constants.hrl src/i18n.erl $(ERL_FILES)
 
 all: $(TARGETS)
 	@rebar -v compile
@@ -32,7 +32,7 @@ include/i18n_constants.hrl: $(MESSAGES_FILE) spec/i18n_constants_hrl.xsl include
         --stringparam now "$(NOW)" \
 		$(word 2,$^) $< > $@
 
-src/i18n_trans.erl: $(MESSAGES_FILE) spec/i18n_trans_erl.xsl
+src/i18n.erl: $(MESSAGES_FILE) spec/i18n_trans_erl.xsl
 	@echo "Applying $(word 2,$^)      to $< -> $@"
 	@$(XSLTPROC) --stringparam user "$(USERNAME)" \
         --stringparam email "$(shell git config --global --get user.email)" \

@@ -74,8 +74,8 @@ decode_iso2(gl) -> <<"Gallegan; Galician">>;
 decode_iso2(gn) -> <<"Guarani">>;
 decode_iso2(gu) -> <<"Gujarati">>;
 decode_iso2(gv) -> <<"Manx">>;
-decode_iso2(ha) -> <<"Hausa (?)">>;
-decode_iso2(he) -> <<"Hebrew (formerly iw)">>;
+decode_iso2(ha) -> <<"Hausa">>;
+decode_iso2(he) -> <<"Hebrew">>;
 decode_iso2(hi) -> <<"Hindi">>;
 decode_iso2(ho) -> <<"Hiri Motu">>;
 decode_iso2(hr) -> <<"Croatian">>;
@@ -83,7 +83,7 @@ decode_iso2(hu) -> <<"Hungarian">>;
 decode_iso2(hy) -> <<"Armenian">>;
 decode_iso2(hz) -> <<"Herero">>;
 decode_iso2(ia) -> <<"Interlingua">>;
-decode_iso2(id) -> <<"Indonesian (formerly in)">>;
+decode_iso2(id) -> <<"Indonesian">>;
 decode_iso2(ie) -> <<"Interlingue">>;
 decode_iso2(ik) -> <<"Inupiak">>;
 decode_iso2(io) -> <<"Ido">>;
@@ -174,7 +174,7 @@ decode_iso2(ti) -> <<"Tigrinya">>;
 decode_iso2(tk) -> <<"Turkmen">>;
 decode_iso2(tl) -> <<"Tagalog">>;
 decode_iso2(tn) -> <<"Tswana; Setswana">>;
-decode_iso2(to) -> <<"Tonga (?)">>;
+decode_iso2(to) -> <<"Tonga">>;
 decode_iso2(tr) -> <<"Turkish">>;
 decode_iso2(ts) -> <<"Tsonga">>;
 decode_iso2(tt) -> <<"Tatar">>;
@@ -189,7 +189,7 @@ decode_iso2(vo) -> <<"Volapuk">>;
 decode_iso2(wa) -> <<"Walloon">>;
 decode_iso2(wo) -> <<"Wolof">>;
 decode_iso2(xh) -> <<"Xhosa">>;
-decode_iso2(yi) -> <<"Yiddish (formerly ji)">>;
+decode_iso2(yi) -> <<"Yiddish">>;
 decode_iso2(yo) -> <<"Yoruba">>;
 decode_iso2(za) -> <<"Zhuang">>;
 decode_iso2(zh) -> <<"Chinese">>;
@@ -245,8 +245,8 @@ all_iso2() ->
      {gn, <<"Guarani">>},
      {gu, <<"Gujarati">>},
      {gv, <<"Manx">>},
-     {ha, <<"Hausa (?)">>},
-     {he, <<"Hebrew (formerly iw)">>},
+     {ha, <<"Hausa">>},
+     {he, <<"Hebrew">>},
      {hi, <<"Hindi">>},
      {ho, <<"Hiri Motu">>},
      {hr, <<"Croatian">>},
@@ -254,7 +254,7 @@ all_iso2() ->
      {hy, <<"Armenian">>},
      {hz, <<"Herero">>},
      {ia, <<"Interlingua">>},
-     {id, <<"Indonesian (formerly in)">>},
+     {id, <<"Indonesian">>},
      {ie, <<"Interlingue">>},
      {ik, <<"Inupiak">>},
      {io, <<"Ido">>},
@@ -345,7 +345,7 @@ all_iso2() ->
      {tk, <<"Turkmen">>},
      {tl, <<"Tagalog">>},
      {tn, <<"Tswana; Setswana">>},
-     {to, <<"Tonga (?)">>},
+     {to, <<"Tonga">>},
      {tr, <<"Turkish">>},
      {ts, <<"Tsonga">>},
      {tt, <<"Tatar">>},
@@ -360,7 +360,7 @@ all_iso2() ->
      {wa, <<"Walloon">>},
      {wo, <<"Wolof">>},
      {xh, <<"Xhosa">>},
-     {yi, <<"Yiddish (formerly ji)">>},
+     {yi, <<"Yiddish">>},
      {yo, <<"Yoruba">>},
      {za, <<"Zhuang">>},
      {zh, <<"Chinese">>},
