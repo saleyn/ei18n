@@ -3,9 +3,10 @@
 
 <xsl:template name="maximum">
     <xsl:param name="values"/>
+    <xsl:param name="add" select="0"/>
     <xsl:for-each select="$values">
         <xsl:sort select="string-length(.)" data-type="number" order="descending"/>
-        <xsl:if test="position()=1"><xsl:value-of select="string-length(.)"/></xsl:if>
+        <xsl:if test="position()=1"><xsl:value-of select="$add + string-length(.)"/></xsl:if>
     </xsl:for-each>
 </xsl:template>
 

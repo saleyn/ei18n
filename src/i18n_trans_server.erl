@@ -5,7 +5,10 @@
 %%%
 %%% @type server_options() = {reload_check_sec, Timeout::integer()}
 %%%                        | {reload_impl, Module::atom()}.
-%%%         Server configuration options.
+%%%         Server configuration options. Supported options include:
+%%%     * reload_check_sec - number of seconds between translation data reloads
+%%%     * reload_impl - callback module implementing interface to translation
+%%%                     data.  It must implement i18n_trans_server behavior.
 %%% @end
 %%%----------------------------------------------------------------------------
 %%% Created: 2012-10-07
@@ -23,6 +26,7 @@
          code_change/3]).
 
 %% Internal default API of data reloading implementation
+-export([behaviour_info/1]).
 -export([impl_init/2, impl_reload/2, impl_stop/1]).
 
 -record(state, {
@@ -34,6 +38,10 @@
 
 -type server_options() :: [ {reload_check_sec, integer()}
                           | {reload_impl, atom()}].
+
+%% @private
+behaviour_info(callbacks) -> [{impl_init,2}, {impl_reload,2}, {impl_stop,1}];
+behaviour_info(_)         -> undefined.
 
 %%%----------------------------------------------------------------------------
 %%% External API

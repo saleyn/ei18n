@@ -37,6 +37,8 @@
 -module(i18n_trans_</xsl:text><xsl:value-of select="$lang"/><xsl:text>).
 -export([get/1]).
 
+-include("i18n.hrl").
+
 %% @doc Get text with `ID' in "</xsl:text>
     <xsl:value-of select="$lang"/><xsl:text>" language
 </xsl:text>
@@ -45,15 +47,15 @@
 
 <xsl:variable name="max-id-len">
     <xsl:call-template name="maximum">
-        <xsl:with-param name="values" select="lang[@iso = $lang]/text/@id"/>
+        <xsl:with-param name="values" select="lang[@iso = $lang]/text/@name"/>
     </xsl:call-template>
 </xsl:variable>
 
 <xsl:for-each select="lang[@iso = $lang]">
     <xsl:for-each select="text">
-        <xsl:variable name="id" select="@id"/>
+        <xsl:variable name="name" select="@name"/>
         <xsl:variable name="default-lang-id-type"
-            select="/translations/lang[@iso = $default-lang]/text[@id = $id]/@type"/>
+            select="/translations/lang[@iso = $default-lang]/text[@name = $name]/@type"/>
         <xsl:if test="@type = 'static' or $default-lang-id-type = 'static'">
             <xsl:variable name="title">
                 <xsl:choose>
@@ -63,12 +65,13 @@
             </xsl:variable>
 
             <xsl:text>get(</xsl:text>
+            <xsl:text>?I18N_</xsl:text>
+            <xsl:value-of select="$name"/>
             <xsl:call-template name="pad">
                 <xsl:with-param name="padCount">
-                    <xsl:value-of select="$max-id-len - string-length(@id)"/>
+                    <xsl:value-of select="$max-id-len - string-length($name)"/>
                 </xsl:with-param>
             </xsl:call-template>
-            <xsl:value-of select="@id"/>
             <xsl:text>) -&gt; &lt;&lt;"</xsl:text>
             <xsl:value-of select="$title"/>
             <xsl:text>">>;&#10;</xsl:text>
@@ -77,8 +80,8 @@
             <xsl:message terminate="yes">
                 <xsl:text>Invalid value of /translations/lang[</xsl:text>
                 <xsl:value-of select="@iso"/>
-                <xsl:text>]/id[</xsl:text>
-                <xsl:value-of select="@id"/>
+                <xsl:text>]/name[</xsl:text>
+                <xsl:value-of select="$name"/>
                 <xsl:text>]/type = '</xsl:text>
                 <xsl:value-of select="@type"/>
                 <xsl:text>'</xsl:text>
@@ -90,8 +93,8 @@
             <xsl:message terminate="yes">
                 <xsl:text>Invalid value of /translations/lang[</xsl:text>
                 <xsl:value-of select="$default-lang"/>
-                <xsl:text>]/id[</xsl:text>
-                <xsl:value-of select="@id"/>
+                <xsl:text>]/name[</xsl:text>
+                <xsl:value-of select="$name"/>
                 <xsl:text>]/type = '</xsl:text>
                 <xsl:value-of select="@type"/>
                 <xsl:text>'</xsl:text>
@@ -99,15 +102,15 @@
         </xsl:if>
     </xsl:for-each>
 </xsl:for-each>
-<xsl:text>get(</xsl:text>
+<xsl:text>get(I</xsl:text>
 <xsl:call-template name="pad">
     <xsl:with-param name="padCount">
-        <xsl:value-of select="$max-id-len - 1"/>
+        <xsl:value-of select="$max-id-len"/>
     </xsl:with-param>
 </xsl:call-template>
-<xsl:text>I) -&gt;
+<xsl:text>) -&gt;
     try
-        i18n_trans_server:get(</xsl:text><xsl:value-of select="$lang"/><xsl:text>, I)
+        i18n_trans_server:get(I, </xsl:text><xsl:value-of select="$lang"/><xsl:text>)
     catch
         _:{noproc,_} ->
             throw(no_server_proc);
