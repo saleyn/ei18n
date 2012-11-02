@@ -1,0 +1,2 @@
+All XSLT transformation files are depricated.  New XSLT generator implementation is in
+src/i18n_generate.erl.

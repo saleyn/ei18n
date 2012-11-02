@@ -1,14 +1,14 @@
 <translations default-lang="en" version="1.0">
 <lang iso="en">
-    <text id="1" type="static">Hello!</text>
-    <text id="2" type="static">Welcome to Enterprise!</text>
-    <text id="3" type="static" name="LOGIN_TEXT">Login</text>
-    <text id="30984" value="Value example"/>
+    <text type="static" name="HELLO">Hello!</text>
+    <text type="static" name="WELCOME">Welcome to Enterprise!</text>
+    <text type="static" name="LOGIN_TEXT">Login</text>
+    <text value="Value example"/>
 </lang>
 <lang iso="ru">
-    <text id="1">Привет!</text>
-    <text id="2">Добро пожаловать в Энтерпрайз!</text>
-    <text id="3">Логин</text>
-    <text id="30984" value="Пример значения"/>
+    <text name="HELLO">Привет!</text>
+    <text name="WELCOME">Добро пожаловать в Энтерпрайз!</text>
+    <text name="LOGIN_TEXT">Логин</text>
+    <text name="VALUE_EXAMPLE" value="Пример значения"/>
 </lang>
 </translations>

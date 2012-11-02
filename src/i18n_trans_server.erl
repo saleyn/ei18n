@@ -19,7 +19,7 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/1, start/1, get/1, get/2, update/3, delete/2]).
+-export([start_link/1, start/1, get/1, get/2, update/3, delete/2, replace/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2,
@@ -30,7 +30,8 @@
 -export([impl_init/2, impl_reload/2, impl_stop/1]).
 
 -record(state, {
-      tref      :: reference()  % Reference of reload checking timer
+      tab       :: integer()
+    , tref      :: reference()  % Reference of reload checking timer
     , timeout   :: integer()    % Reload checking timer timeout
     , impl      :: atom()       % Reload implementation module
     , impl_state                % Opaque implemenation module's state
@@ -108,6 +109,10 @@ delete(Lang, ID) when is_atom(Lang)
         andalso (is_integer(ID) orelse is_atom(ID)) ->
     gen_server:call(?MODULE, {delete, {Lang, ID}}).
 
+-spec replace([{{integer() | binary(), atom()}, binary()}]) -> ok.
+replace(Data) when is_list(Data) ->
+    gen_server:call(?MODULE, {replace, Data}).
+
 %%%----------------------------------------------------------------------------
 %%% Callback functions from gen_server
 %%%----------------------------------------------------------------------------
@@ -125,13 +130,24 @@ init(Options) ->
         Timeout = proplists:get_value(reload_check_sec, Options, 5) * 1000,
         RelMod  = proplists:get_value(reload_impl, Options, ?MODULE),
 
-        ets:new(?MODULE,
-            [protected, named_table, {read_concurrency,true}]),
+        Tab = ets:new(?MODULE, [protected, {read_concurrency,true}]),
+
+        case proplists:get_value(reload_data, Options) of
+        undefined ->
+            ok;
+        File when is_list(File) ->
+            try
+                {ok, Data} = file:read_file(File),
+                lists:foreach(fun(O) -> ets:insert(Tab, O) end, Data)
+            catch _:Err ->
+                throw({loading_data_from_file, File, Err})
+            end
+        end,
 
         IState = RelMod:impl_init(self(), Options),
 
         Ref = erlang:send_after(Timeout, self(), check_and_reload),
-        {ok, #state{tref = Ref, timeout = Timeout,
+        {ok, #state{tab = Tab, tref = Ref, timeout = Timeout,
                     impl = RelMod, impl_state=IState}}
     catch _:What ->
         {stop, What}
@@ -149,8 +165,8 @@ init(Options) ->
 %% @doc Handling call messages
 %% @end
 %%-----------------------------------------------------------------------------
-handle_call({get, Key}, _From, State) ->
-    case lookup(Key) of
+handle_call({get, Key}, _From, #state{tab = Tab} = State) ->
+    case lookup(Tab, Key) of
     V when is_binary(V) ->
         {reply, V, State};
     false ->
@@ -159,7 +175,7 @@ handle_call({get, Key}, _From, State) ->
         {Lang, _} when Lang =:= DefLang ->
             {reply, not_found, State};
         {_, ID} ->
-            case lookup({DefLang, ID}) of
+            case lookup(Tab, {DefLang, ID}) of
             V2 when is_binary(V2) ->
                 {reply, V2, State};
             false ->
@@ -168,13 +184,19 @@ handle_call({get, Key}, _From, State) ->
         end
     end;
 
-handle_call({update, Key, Value}, _From, State) ->
-    true = ets:insert(?MODULE, {Key, Value}),
+handle_call({update, Key, Value}, _From, #state{tab = Tab} = State) ->
+    true = ets:insert(Tab, {Key, Value}),
     {reply, ok, State};
 
-handle_call({delete, {_, _} = Key}, _From, State) ->
-    true = ets:delete(?MODULE, Key),
+handle_call({delete, {_, _} = Key}, _From, #state{tab = Tab} = State) ->
+    true = ets:delete(Tab, Key),
     {reply, ok, State};
+
+handle_call({replace, Data}, _From, #state{tab = Tab0} = State) ->
+    Tab = ets:new(temp, [protected, {read_concurrency,true}]),
+    lists:foreach(fun({K,V}) -> ets:insert(Tab, {K,V}) end, Data),
+    ets:delete_all_objects(Tab0),
+    {reply, ok, State#state{tab = Tab}};
 
 handle_call(Request, _From, State) ->
     {stop, {unknown_call, Request}, State}.
@@ -233,8 +255,8 @@ code_change(_OldVsn, State, _Extra) ->
 %%% Internal functions
 %%%----------------------------------------------------------------------------
 
-lookup(Key) ->
-    case ets:lookup(?MODULE, Key) of
+lookup(Tab, Key) ->
+    case ets:lookup(Tab, Key) of
     [{_,V}] -> V;
     []      -> false
     end.
