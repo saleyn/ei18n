@@ -6,7 +6,7 @@
 %%%----------------------------------------------------------------------------
 %%% Created: 2012-10-07
 %%%----------------------------------------------------------------------------
--module(i18n_po_generator).
+-module(ei18n_po_generator).
 -author('saleyn@gmail.com').
 
 %% API
@@ -16,6 +16,10 @@
 %%% External API
 %%%----------------------------------------------------------------------------
 
+%%-----------------------------------------------------------------------------
+%% @doc Write an internationalization PO file
+%% @end
+%%-----------------------------------------------------------------------------
 -spec write_file(string(), [{string(), string()}], [{string(), string()}]) -> ok.
 write_file(Filename, Items, Fuzzy) ->
     {ok, Fd} = file:open(Filename, [write, {encoding, unicode}, binary, raw]),
@@ -53,12 +57,11 @@ write_fuzzy_entries(_Fd, []) ->
 write_fuzzy_entries(Fd, Items) ->
 	file:write(Fd, <<"\n">>),
 	lists:foreach(fun({Id,Translation}) ->
-        file:write(Fd, <<"#, fuzzy\n">>),
-		file:write(Fd, <<"msgid \"">>),
+        file:write(Fd, <<"#, fuzzy\nmsgid \"">>),
 		write_string(Fd, Id),
 		file:write(Fd, <<"\"\nmsgstr \"">>),
 		write_string(Fd, Translation),
-		file:write(Fd, "\"\n")
+		file:write(Fd, <<"\"\n">>)
 	end, Items).
 
 write_header(Fd) ->

@@ -1,4 +1,4 @@
-%% -------------------------------------------------------------------------
+%%-------------------------------------------------------------------------
 %% Permission is hereby granted, free of charge, to any person obtaining a
 %% copy of this software and associated documentation files (the
 %% "Software"), to deal in the Software without restriction, including
@@ -24,7 +24,7 @@
 %% @doc ISO 639 2-letter codes.
 %% @private
 
--module(i18n_iso639).
+-module(ei18n_iso639).
 -export([decode_iso2/1, all_iso2/0]).
 
 decode_iso2(aa) -> <<"Afar">>;

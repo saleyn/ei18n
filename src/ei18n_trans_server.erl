@@ -8,12 +8,12 @@
 %%%         Server configuration options. Supported options include:
 %%%     * reload_check_sec - number of seconds between translation data reloads
 %%%     * reload_impl - callback module implementing interface to translation
-%%%                     data.  It must implement i18n_trans_server behavior.
+%%%                     data.  It must implement `ei18n_trans_server' behavior.
 %%% @end
 %%%----------------------------------------------------------------------------
 %%% Created: 2012-10-07
 %%%----------------------------------------------------------------------------
--module(i18n_trans_server).
+-module(ei18n_trans_server).
 -author('saleyn@gmail.com').
 
 -behaviour(gen_server).

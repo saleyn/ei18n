@@ -6,7 +6,7 @@
 %%%----------------------------------------------------------------------------
 %%% Created: 2012-10-07
 %%%----------------------------------------------------------------------------
--module(i18n_generate).
+-module(ei18n_xml_generate).
 -author('saleyn@gmail.com').
 
 %% API
@@ -50,10 +50,10 @@ generate(OutDir, XmlFile, Author, Email)
     false -> SDir = OutDir
     end,
 
-    ok = file:write_file(filename:join(HDir, "i18n.hrl"), HeaderBin),
-    ok = file:write_file(filename:join(SDir, "i18n.erl"), I18nBin),
+    ok = file:write_file(filename:join(HDir, "ei18n.hrl"), HeaderBin),
+    ok = file:write_file(filename:join(SDir, "ei18n.erl"), I18nBin),
     lists:foreach(fun({Lang, Bin}) ->
-        ok = file:write_file(filename:join(SDir, "i18n_" ++ Lang ++ ".erl"), Bin)
+        ok = file:write_file(filename:join(SDir, lang_module_name(Lang) ++ ".erl"), Bin)
     end, I18nLangs).
 
 %%-----------------------------------------------------------------------------
@@ -61,7 +61,7 @@ generate(OutDir, XmlFile, Author, Email)
 %%           [{{Key::binary(), Lang::atom()}, Value::binary()}].
 %% @doc Generate a list of dynmic lookup translation entries from an XML
 %%      specification file. The result of this call can be loaded to the
-%%      i18n_trans_server using `i18n_trans_server:reload/1' function.
+%%      ei18n_trans_server using `ei18n_trans_server:reload/1' function.
 %% @end
 %%-----------------------------------------------------------------------------
 -spec dynamic_data(string()) -> [{{binary(), atom()}, binary()}].
@@ -83,7 +83,7 @@ dynamic_data(XmlFile) ->
 %%           [{{Key::binary(), Lang::atom()}, Value::binary()}].
 %% @doc Save dynmic lookup translation entries from an XML
 %%      specification file to a binary file, so that it later could be loaded
-%%      to the i18n_trans_server.
+%%      to the ei18n_trans_server.
 %% @end
 %%-----------------------------------------------------------------------------
 -spec save_dynamic_data(string(), string()) -> [{{binary(), atom()}, binary()}].
@@ -141,7 +141,7 @@ i18n_data(XmlFile, Username, Email, Doc) ->
     "%%% @end\n"
     "%%%----------------------------------------------------------------------------\n",
     (version_by_created(XmlFile, Username, Email, Doc))/binary,
-    "-module(i18n).\n"
+    "-module(ei18n).\n"
     "-export([default_language/0, supports/1, info/1, get/1, get/2, reload/0]).\n"
     "\n"
     "%% @doc Returns default system language\n"
@@ -231,12 +231,12 @@ i18n_lang_data(XmlFile, Lang, Username, Email, Doc) ->
     (version_by_created(XmlFile, Username, Email, Doc))/binary,
     "-module(", (list_to_binary(lang_module_name(Lang)))/binary, ").\n"
     "-export([get/1]).\n\n"
-    "-include(\"i18n.hrl\").\n\n"
+    "-include(\"ei18n.hrl\").\n\n"
     "%% @doc Get text with `ID' in `", (list_to_binary(Lang))/binary, "' language\n",
     (list_to_binary(lang_data(Lang, Doc)))/binary,
     "get(I) ->\n"
     "   try\n"
-    "       i18n_trans_server:get(I, ", (list_to_binary(Lang))/binary, ")\n"
+    "       ei18n_trans_server:get(I, ", (list_to_binary(Lang))/binary, ")\n"
     "   catch\n"
     "       _:{noproc,_} ->\n"
     "           throw(no_server_proc);\n"
