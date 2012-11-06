@@ -10,8 +10,7 @@
 -author('saleyn@gmail.com').
 
 %% API
-%-export([check_files/2, generate/4, dynamic_data/1, save_dynamic_data/2]).
--compile(export_all).
+-export([check_files/2, generate/4, dynamic_data/1, save_dynamic_data/2]).
 
 -include_lib("xmerl/include/xmerl.hrl").
 
@@ -135,7 +134,7 @@ accumulate({K, {_Tp, V}, It}, Lang, DefLang, DefTree, Acc) ->
 define_prefix() -> "I18N_".
 
 lang_module_name(Suffix) when is_list(Suffix) ->
-    "i18n_" ++ Suffix.
+    "ei18n_" ++ Suffix.
 
 languages(Doc) ->
     [V || #xmlAttribute{value=V} <- xmerl_xpath:string("/translations/lang/@iso", Doc)].
