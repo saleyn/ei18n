@@ -9,7 +9,8 @@ generate efficient implementation where partial internationalization information
 can be pre-compiled into bytecode based on the `static` or `dynamic` attribute
 of text items.
 
-== Format of the XML file ==
+Format of the XML file
+======================
 
 A sample XML file is shown below:
 
@@ -40,6 +41,9 @@ A sample XML file is shown below:
                and looked up dynamically.
     * `value` - can optionally define the blob's content (see line 4 above).
                If absent the content must be defined in the node's text (see line 5).
+
+Every text node specified in the non-default language section must have name attributes
+with ID's found in the default language section.
 
 In the example above the following header file will be generated:
 

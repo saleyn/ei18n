@@ -10,13 +10,34 @@
 -author('saleyn@gmail.com').
 
 %% API
--export([generate/4, dynamic_data/1, save_dynamic_data/2]).
+%-export([check_files/2, generate/4, dynamic_data/1, save_dynamic_data/2]).
+-compile(export_all).
 
 -include_lib("xmerl/include/xmerl.hrl").
 
 %%%----------------------------------------------------------------------------
 %%% External API
 %%%----------------------------------------------------------------------------
+
+%%-----------------------------------------------------------------------------
+%% @spec (XmlFile::string(), NowDateTime::tuple()) -> [Filename::string()].
+%% @doc Check which internationalization modules need to be recreated
+%% @end
+%%-----------------------------------------------------------------------------
+-spec check_files(string(), calendar:datetime()) -> [string()].
+check_files(XmlFile, LastModifiedDate) ->
+    Doc = scan_file(XmlFile),
+    lists:sort(lists:foldl(
+        fun(F, A) ->
+            case filelib:last_modified(F) > LastModifiedDate of
+            true  -> A;
+            false -> [F | A]
+            end
+        end,
+        [],
+        [filename:join("include", "ei18n.hrl"),
+         filename:join("src", "ei18n.erl")
+         | [filename:join("src", lang_module_name(L) ++ ".erl") || L <- languages(Doc)]])).
 
 %%-----------------------------------------------------------------------------
 %% @spec (OutDir::string(), XmlFile::string(),
@@ -34,7 +55,7 @@
 -spec generate(string(), string(), string(), string()) -> ok.
 generate(OutDir, XmlFile, Author, Email)
   when is_list(OutDir), is_list(XmlFile), is_list(Author), is_list(Email) ->
-    {Doc, _} = xmerl_scan:file(XmlFile),
+    Doc = scan_file(XmlFile),
     HeaderBin = header_data(XmlFile, Author, Email, Doc),
     I18nBin   = i18n_data(XmlFile, Author, Email, Doc),
     I18nLangs = [{Lang, i18n_lang_data(XmlFile, Lang, Author, Email, Doc)}
@@ -66,7 +87,7 @@ generate(OutDir, XmlFile, Author, Email)
 %%-----------------------------------------------------------------------------
 -spec dynamic_data(string()) -> [{{binary(), atom()}, binary()}].
 dynamic_data(XmlFile) ->
-    {Doc, _} = xmerl_scan:file(XmlFile),
+    Doc = scan_file(XmlFile),
     DefLangS = default_lang(Doc),
     DefTree  = name_types_tree(DefLangS, undefined, Doc),
     DefLang  = list_to_atom(DefLangS),
@@ -157,7 +178,7 @@ i18n_data(XmlFile, Username, Email, Doc) ->
     "-spec info(languages | modules) -> [atom()].\n"
     "info(languages) ->\n"
     "    [ ",
-    (list_to_binary(string:join([[L,";\n"] || L <- languages(Doc)], "    , ")))/binary,
+    (list_to_binary(string:join([L++"\n" || L <- languages(Doc)], "    , ")))/binary,
     "    ];\n"
     "info(modules) ->\n"
     "    [lang_module(L) || L <- info(languages)].\n\n"
@@ -257,6 +278,15 @@ lang_data(Lang, Doc) ->
     MaxLen = lists:max([length(element(1, V)) || V <- List]),
     [["get(?I18N_", string:left(N, MaxLen, $ ), ") -> <<\"", V, "\">>;\n"]
         || {N,V} <- lists:sort(List)].
+
+
+scan_file(XmlFile) ->
+    case xmerl_scan:file(XmlFile) of
+    {#xmlElement{} = Doc, _} ->
+        Doc;
+    {error, Reason} ->
+        throw(Reason)
+    end.
 
 name_types_tree(Lang, ExcludeType, Doc) ->
     lists:foldl(
