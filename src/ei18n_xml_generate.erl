@@ -25,7 +25,7 @@
 %%-----------------------------------------------------------------------------
 -spec check_files(string(), calendar:datetime()) -> [string()].
 check_files(XmlFile, LastModifiedDate) ->
-    Doc = scan_file(XmlFile),
+    Languages = list_languages(XmlFile),
     lists:sort(lists:foldl(
         fun(F, A) ->
             case filelib:last_modified(F) > LastModifiedDate of
@@ -36,7 +36,7 @@ check_files(XmlFile, LastModifiedDate) ->
         [],
         [filename:join("include", "ei18n.hrl"),
          filename:join("src", "ei18n.erl")
-         | [filename:join("src", lang_module_name(L) ++ ".erl") || L <- languages(Doc)]])).
+         | [filename:join("src", lang_module_name(L) ++ ".erl") || L <- Languages]])).
 
 %%-----------------------------------------------------------------------------
 %% @spec (OutDir::string(), XmlFile::string(),
@@ -135,6 +135,22 @@ define_prefix() -> "I18N_".
 
 lang_module_name(Suffix) when is_list(Suffix) ->
     "ei18n_" ++ Suffix.
+
+list_languages(XmlFile) ->
+    case os:type() of
+    {win32, _} ->
+        Doc = scan_file(XmlFile),
+        languages(Doc);
+    {unix, _} ->
+        case filelib:is_file(XmlFile) of
+        true ->
+            lists:nthtail(10, string:tokens(
+                os:cmd("egrep -o \"lang *iso=\\\"([^\\\"]*)\" \"" ++ XmlFile ++ "\""),
+                       "\n"));
+        false ->
+            throw({file_has_no_languages, XmlFile})
+        end
+    end.
 
 languages(Doc) ->
     [V || #xmlAttribute{value=V} <- xmerl_xpath:string("/translations/lang/@iso", Doc)].

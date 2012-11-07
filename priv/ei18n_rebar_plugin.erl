@@ -24,22 +24,32 @@
 
 pre_compile(Config, _) ->
     rebar_log:log(debug, "plugin working in ~s~n", [rebar_utils:get_cwd()]),
+    XmlFile =
+        case rebar_config:get_local(Config, ei18n_opts, undefined) of
+        undefined ->
+            throw("Undefined ei18n_opts options!");
+        Opts when is_list(Opts) ->
+            proplists:get_value(xml_file, Opts, "priv/i18n.xml")
+        end,
+
+    filelib:is_file(XmlFile) orelse
+        throw("I18n XML specification file not found!"),
+
     case rebar_utils:processing_base_dir(Config) of
-        true ->
-            Time  = filelib:last_modified("priv/i18n.xml"),
-            case ei18n_xml_generate:check_files("priv/i18n.xml", Time) of
-            [] -> ok;
-            _ ->
-                {ok, User}  = git_config_get("user.name"),
-                {ok, Email} = git_config_get("user.email"),
-                ei18n_xml_generate:generate(".", "priv/i18n.xml", User, Email),
-                ok
-            end;
-        false ->
-            rebar_log:log(debug, "Not base_dir~n", []),
+    true ->
+        Time  = filelib:last_modified(XmlFile),
+        case ei18n_xml_generate:check_files(XmlFile, Time) of
+        [] -> ok;
+        _ ->
+            {ok, User}  = git_config_get("user.name"),
+            {ok, Email} = git_config_get("user.email"),
+            ei18n_xml_generate:generate(".", XmlFile, User, Email),
             ok
-    end,
-    ok.
+        end;
+    false ->
+        rebar_log:log(debug, "Not base_dir~n", []),
+        ok
+    end.
 
 clean(Config, _) ->
     case rebar_utils:processing_base_dir(Config) of
