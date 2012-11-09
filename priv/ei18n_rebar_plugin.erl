@@ -23,14 +23,19 @@
 -export([pre_compile/2, clean/2]).
 
 pre_compile(Config, _) ->
-    rebar_log:log(debug, "plugin working in ~s~n", [rebar_utils:get_cwd()]),
-    XmlFile =
-        case rebar_config:get_local(Config, ei18n_opts, undefined) of
+    rebar_log:log(debug, "plugin working in ~s\n", [rebar_utils:get_cwd()]),
+    F =
+        case rebar_config:get_all(Config, ei18n_opts) of
         undefined ->
             throw("Undefined ei18n_opts options!");
         Opts when is_list(Opts) ->
             proplists:get_value(xml_file, Opts, "priv/i18n.xml")
         end,
+
+    Dir = rebar_config:get_xconf(Config, base_dir),
+    XmlFile = xml_file_name(Dir, F, element(1, os:type())),
+
+    rebar_log:log(debug, "ei18n XML specifications file: ~s\n", [XmlFile]),
 
     filelib:is_file(XmlFile) orelse
         throw("I18n XML specification file not found!"),
@@ -47,7 +52,7 @@ pre_compile(Config, _) ->
             ok
         end;
     false ->
-        rebar_log:log(debug, "Not base_dir~n", []),
+        rebar_log:log(debug, "Not base_dir\n", []),
         ok
     end.
 
@@ -70,3 +75,14 @@ git_config_get(Opt) ->
     Error ->
         Error
     end.
+
+xml_file_name(_Dir, [_, $: | _] = File, win32) ->
+    File;
+xml_file_name(_Dir, [$\\ | _] = File, win32) ->
+    File;
+xml_file_name(Dir, File, win32) ->
+    filename:join(Dir, File);
+xml_file_name(_Dir, [$/ | _] = File, unix) ->
+    File;
+xml_file_name(Dir, File, unix) ->
+    filename:join(Dir, File).

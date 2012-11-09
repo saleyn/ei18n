@@ -81,15 +81,16 @@ Generating `ei18n*` module targets from XML spec
 
 1. Include `ei18n` dependency in the rebar config file:
 
-    {deps, [{ei18n, ".*", {git, "git://github.com/saleyn/ei18n.git", "master"}}]}.
+        {deps, [{ei18n, ".*", {git, "git://github.com/saleyn/ei18n.git", "master"}}]}.
 
 2. Add the following configuration options to `rebar.config`:
 
-    {plugin_dir, "deps/ei18n/priv"}.
-    {plugins, [ei18n_rebar_plugin]}.
+        {plugin_dir, "deps/ei18n/priv"}.
+        {plugins, [ei18n_rebar_plugin]}.
+        {ei18n_opts, [{xml_file, "path/to/specification/file.xml"}]}.
 
 This will result in creation of the following files after running `rebar compile`:
 
     * include/ei18n.hrl
     * src/ei18n.erl
-    * src/ei18n_{LANG}.erl  (for each {LANG} defined in the 
+    * src/ei18n_{LANG}.erl  (for each {LANG} defined in the XML specifications file)

@@ -144,9 +144,10 @@ list_languages(XmlFile) ->
     {unix, _} ->
         case filelib:is_file(XmlFile) of
         true ->
-            lists:nthtail(10, string:tokens(
-                os:cmd("egrep -o \"lang *iso=\\\"([^\\\"]*)\" \"" ++ XmlFile ++ "\""),
-                       "\n"));
+            [lists:nthtail(10, L)
+                || L <- string:tokens(
+                    os:cmd("egrep -o \"lang *iso=\\\"([^\\\"]*)\" \"" ++ XmlFile ++ "\""),
+                    "\n")];
         false ->
             throw({file_has_no_languages, XmlFile})
         end
