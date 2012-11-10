@@ -23,48 +23,49 @@
 -export([pre_compile/2, clean/2]).
 
 pre_compile(Config, _) ->
-    rebar_log:log(debug, "plugin working in ~s\n", [rebar_utils:get_cwd()]),
-    F =
-        case rebar_config:get_all(Config, ei18n_opts) of
-        undefined ->
-            throw("Undefined ei18n_opts options!");
-        Opts when is_list(Opts) ->
-            proplists:get_value(xml_file, Opts, "priv/i18n.xml")
-        end,
-
-    Dir = rebar_config:get_xconf(Config, base_dir),
-    XmlFile = xml_file_name(Dir, F, element(1, os:type())),
-
-    rebar_log:log(debug, "ei18n XML specifications file: ~s\n", [XmlFile]),
-
-    filelib:is_file(XmlFile) orelse
-        throw("I18n XML specification file not found!"),
-
     case rebar_utils:processing_base_dir(Config) of
+    false ->
+        ok;
     true ->
+        XmlFile =
+            case rebar_config:get_all(Config, ei18n_opts) of
+            undefined ->
+                throw("Undefined ei18n_opts options!");
+            Opts when is_list(Opts) ->
+                proplists:get_value(xml_file, Opts, "priv/i18n.xml")
+            end,
+
+        rebar_log:log(info, "ei18n XML specifications file: ~s\n", [XmlFile]),
+
+        filelib:is_file(XmlFile) orelse
+            throw("I18n XML specification file not found!"),
+
         Time  = filelib:last_modified(XmlFile),
         case ei18n_xml_generate:check_files(XmlFile, Time) of
-        [] -> ok;
-        _ ->
+        [] ->
+            rebar_log:log(debug, "ei18n: no files modified\n", []);
+        Files ->
+            rebar_log:log(debug, "ei18n found modified/missing files:\n  ~p\n", [Files]),
             {ok, User}  = git_config_get("user.name"),
             {ok, Email} = git_config_get("user.email"),
             ei18n_xml_generate:generate(".", XmlFile, User, Email),
             ok
-        end;
-    false ->
-        rebar_log:log(debug, "Not base_dir\n", []),
-        ok
+        end
     end.
 
 clean(Config, _) ->
     case rebar_utils:processing_base_dir(Config) of
-        true ->
-            file:delete("src/ei18n.erl"),
-            [file:delete(F) || F <- filelib:wildcard("src/ei18n_??.erl")],
-            file:delete("include/ei18n.hrl"),
-            ok;
-        false ->
-            ok
+    false ->
+        ok;
+    true ->
+        Files =
+            [F || F <- [ filename:join("src", "ei18n.erl")
+                       , filename:join("include", "ei18n.hrl")
+                       | filelib:wildcard(filename:join("src", "ei18n_??.erl"))]
+                    , filelib:is_file(F)],
+        rebar_log:log(info, "ei18n cleaning files: ~p\n", [Files]),
+        [file:delete(F) || F <- Files],
+        ok
     end.
 
 git_config_get(Opt) ->
@@ -76,13 +77,3 @@ git_config_get(Opt) ->
         Error
     end.
 
-xml_file_name(_Dir, [_, $: | _] = File, win32) ->
-    File;
-xml_file_name(_Dir, [$\\ | _] = File, win32) ->
-    File;
-xml_file_name(Dir, File, win32) ->
-    filename:join(Dir, File);
-xml_file_name(_Dir, [$/ | _] = File, unix) ->
-    File;
-xml_file_name(Dir, File, unix) ->
-    filename:join(Dir, File).

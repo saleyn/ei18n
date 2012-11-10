@@ -19,7 +19,8 @@
 %%%----------------------------------------------------------------------------
 
 %%-----------------------------------------------------------------------------
-%% @spec (XmlFile::string(), NowDateTime::tuple()) -> [Filename::string()].
+%% @spec (XmlFile::string(), NowDateTime::tuple()) ->
+%%          [Filename::string()].
 %% @doc Check which internationalization modules need to be recreated
 %% @end
 %%-----------------------------------------------------------------------------
@@ -36,7 +37,8 @@ check_files(XmlFile, LastModifiedDate) ->
         [],
         [filename:join("include", "ei18n.hrl"),
          filename:join("src", "ei18n.erl")
-         | [filename:join("src", lang_module_name(L) ++ ".erl") || L <- Languages]])).
+         | [filename:join("src", lang_module_name(L) ++ ".erl")
+                || L <- Languages]])).
 
 %%-----------------------------------------------------------------------------
 %% @spec (OutDir::string(), XmlFile::string(),
