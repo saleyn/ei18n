@@ -10,7 +10,7 @@ can be pre-compiled into bytecode based on the `static` or `dynamic` attribute
 of text items.
 
 Format of the XML file
-======================
+----------------------
 
 A sample XML file is shown below:
 
@@ -77,7 +77,7 @@ internationalization blobs dynamically:
     ei18n_trans_server:get(<<"VALUE_EXAMPLE1">>, ru) -> <<"Пример значения">>.
 
 Generating `ei18n*` module targets from XML spec
-================================================
+------------------------------------------------
 
 1. Include `ei18n` dependency in the rebar config file:
 
